@@ -23,6 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'odom_tf_from_map_pose = my_pkg.odom_tf_from_map_pose:main',
         ],
     },
 )

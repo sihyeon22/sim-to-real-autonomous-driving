@@ -20,7 +20,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'bag_rate',
-            default_value='0.1',
+            default_value='0.3',
             description='Rosbag playback rate',
         ),
         DeclareLaunchArgument(
@@ -37,26 +37,39 @@ def generate_launch_description():
         # Replay bag-recorded /clock only (do not use --clock) to avoid duplicate publishers.
         ExecuteProcess(
             cmd=[
-                'ros2', 'bag', 'play', bag_path, '-r', bag_rate,
+                'ros2', 'bag', 'play', bag_path, '-r', bag_rate, '-l',
                 '--topics',
                 '/clock',
                 '/carla/hero/lidar',
                 '/carla/hero/odometry',
-                '/tf',
                 '/tf_static',
             ],
             output='screen',
         ),
 
-        # Build odom frame from map so slam_toolbox can resolve odom -> hero
+        # Convert absolute map->hero pose (odometry) into relative odom->hero TF.
+        Node(
+            package='my_pkg',
+            executable='odom_tf_from_map_pose',
+            name='odom_tf_from_map_pose',
+            output='screen',
+            parameters=[{
+                'use_sim_time': True,
+                'input_topic': '/carla/hero/odometry',
+                'odom_frame': 'odom',
+                'base_frame': 'hero',
+            }],
+        ),
+
+        # Keep only the LiDAR mounting TF needed for 2D scan conversion.
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
-            name='map_to_odom_static_tf',
+            name='hero_to_lidar_static_tf',
             arguments=[
-                '--x', '0', '--y', '0', '--z', '0',ㄱ
+                '--x', '0', '--y', '0', '--z', '2.4',
                 '--roll', '0', '--pitch', '0', '--yaw', '0',
-                '--frame-id', 'map', '--child-frame-id', 'odom',
+                '--frame-id', 'hero', '--child-frame-id', 'hero/lidar',
             ],
             output='screen',
         ),
@@ -70,14 +83,14 @@ def generate_launch_description():
                 'use_sim_time': True,
                 'target_frame': 'hero',
                 'transform_tolerance': 0.2,
-                'min_height': -0.5,
-                'max_height': 0.8,
+                'min_height': -0.1,
                 'angle_min': -3.14159,
+                'max_height': 0.2,
                 'angle_max': 3.14159,
                 'angle_increment': 0.0174,
-                'range_min': 0.5,
-                'range_max': 30.0,
-                'use_inf': True,
+                'range_min': 1.0,
+                'range_max': 15.0,
+                'use_inf': False,
             }],
             remappings=[
                 ('cloud_in', '/carla/hero/lidar'),
@@ -96,7 +109,7 @@ def generate_launch_description():
                 'odom_frame': 'odom',
                 'base_frame': 'hero',
                 'scan_topic': '/scan',
-                'publish_map_to_odom_transform': False,
+                'publish_map_to_odom_transform': True,
                 'transform_timeout': 0.2,
                 'tf_buffer_duration': 30.0,
             }],
