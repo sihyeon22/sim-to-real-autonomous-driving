@@ -1,0 +1,7 @@
+build/
+install/
+log/
+*.db3
+*.tar.gz
+__pycache__/
+*.pyc
