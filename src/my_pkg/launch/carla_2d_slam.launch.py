@@ -81,15 +81,15 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 'use_sim_time': True,
-                'target_frame': 'hero',
+                'target_frame': 'hero/lidar',
                 'transform_tolerance': 0.2,
-                'min_height': -0.1,
+                'min_height': -0.5,
                 'angle_min': -3.14159,
-                'max_height': 0.2,
+                'max_height': 0.5,
                 'angle_max': 3.14159,
-                'angle_increment': 0.0174,
+                'angle_increment': 0.0087,
                 'range_min': 1.0,
-                'range_max': 15.0,
+                'range_max': 50.0,
                 'use_inf': False,
             }],
             remappings=[
@@ -112,6 +112,7 @@ def generate_launch_description():
                 'publish_map_to_odom_transform': True,
                 'transform_timeout': 0.2,
                 'tf_buffer_duration': 30.0,
+                'minimum_laser_range': 1.0,
             }],
         ),
 
