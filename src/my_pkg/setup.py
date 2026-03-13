@@ -24,6 +24,8 @@ setup(
     entry_points={
         'console_scripts': [
             'odom_tf_from_map_pose = my_pkg.odom_tf_from_map_pose:main',
+            'cmd_vel_relay = my_pkg.cmd_vel_relay:main',
+            'cmd_vel_to_vehicle_control = my_pkg.cmd_vel_to_vehicle_control:main',
         ],
     },
 )
