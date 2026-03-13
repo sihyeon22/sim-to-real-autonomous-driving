@@ -66,7 +66,6 @@ def generate_launch_description():
                 'angle_increment': 0.0087,
                 'range_min': 0.3,
                 'range_max': 50.0,
-                'qos_overrides./scan.publisher.reliability': 'reliable',
             }],
             remappings=[
                 ('cloud_in', '/carla/hero/lidar'),
