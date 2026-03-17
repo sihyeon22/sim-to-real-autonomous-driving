@@ -42,7 +42,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_cmd_vel_relay',
             default_value='true',
-            description='Convert /cmd_vel to /carla/hero/vehicle_control_cmd',
+            description='Convert /cmd_vel to /carla/hero/ackermann_cmd',
         ),
 
         # Realtime mode: expects CARLA bridge topics (/clock, /carla/hero/*) to be already available.
@@ -55,8 +55,11 @@ def generate_launch_description():
             parameters=[{
                 'use_sim_time': True,
                 'input_topic': '/carla/hero/odometry',
+                'output_odom_topic': '/odom_local',
                 'odom_frame': 'odom',
                 'base_frame': 'hero',
+                'publish_rate': 30.0,
+                'use_msg_stamp': False,
             }],
         ),
 
@@ -81,14 +84,14 @@ def generate_launch_description():
                 'use_sim_time': True,
                 'use_inf': True,
                 'target_frame': 'hero/lidar',
-                'transform_tolerance': 0.5,
+                'transform_tolerance': 1.2,
                 'min_height': -1.8,
                 'angle_min': -3.14159,
                 'angle_max': 3.14159,
                 'max_height': 0.0,
-                'angle_increment': 0.0087,
+                'angle_increment': 0.05,
                 'range_min': 0.3,
-                'range_max': 50.0,
+                'range_max': 30.0,
             }],
             remappings=[
                 ('cloud_in', '/carla/hero/lidar'),
@@ -112,21 +115,39 @@ def generate_launch_description():
 
         Node(
             condition=IfCondition(use_cmd_vel_relay),
+            package='carla_ackermann_control',
+            executable='carla_ackermann_control_node',
+            name='carla_ackermann_control',
+            output='screen',
+            parameters=[
+                PathJoinSubstitution([
+                    FindPackageShare('carla_ackermann_control'),
+                    'config',
+                    'settings.yaml',
+                ]),
+                {
+                    'role_name': 'hero',
+                    'control_loop_rate': 0.05,
+                }
+            ],
+        ),
+
+        Node(
+            condition=IfCondition(use_cmd_vel_relay),
             package='my_pkg',
-            executable='cmd_vel_to_vehicle_control',
-            name='cmd_vel_to_vehicle_control',
+            executable='cmd_vel_to_ackermann',
+            name='cmd_vel_to_ackermann',
             output='screen',
             parameters=[{
                 'input_topic': '/cmd_vel',
-                'output_topic': '/carla/hero/vehicle_control_cmd',
-                'manual_override_topic': '/carla/hero/vehicle_control_manual_override',
-                'max_speed': 3.0,
-                'max_throttle': 0.35,
-                'max_steer': 0.35,
-                'steer_gain': 0.6,
-                'brake_on_stop': 0.3,
-                'stop_speed_threshold': 0.05,
-                'min_drive_throttle': 0.18,
+                'output_topic': '/carla/hero/ackermann_cmd',
+                'wheelbase': 3.0,
+                'max_steering_angle': 0.6,
+                'angular_deadband': 0.03,
+                'min_speed_for_steer': 0.2,
+                'max_speed': 5.0,
+                'acceleration': 0.7,
+                'jerk': 0.0,
             }],
         ),
 
