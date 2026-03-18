@@ -1,4 +1,4 @@
-image: realtime_slam_map_blocked.pgm
+image: realtime_slam_map_blocked2.pgm
 mode: trinary
 resolution: 0.05
 origin: [-142, -164, 0]

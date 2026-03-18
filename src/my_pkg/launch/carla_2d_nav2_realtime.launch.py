@@ -18,7 +18,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map_yaml',
             default_value=PathJoinSubstitution([
-                EnvironmentVariable('HOME'), 'CARLA_ws', 'maps', 'realtime_slam_map_ver3.yaml'
+                EnvironmentVariable('HOME'), 'CARLA_ws', 'maps', 'realtime_slam_map_blocked.yaml'
             ]),
             description='Full path to saved map yaml',
         ),
@@ -156,7 +156,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2_nav2',
-            arguments=['-d', PathJoinSubstitution([FindPackageShare('nav2_bringup'), 'rviz', 'nav2_default_view.rviz'])],
+            arguments=['-d', PathJoinSubstitution([FindPackageShare('my_pkg'), 'rviz', 'carla.rviz'])],
             parameters=[{'use_sim_time': True}],
             output='screen',
         ),

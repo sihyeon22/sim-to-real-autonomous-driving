@@ -46,8 +46,8 @@ bt_navigator:
     robot_base_frame: hero
     odom_topic: /odom_local
     bt_loop_duration: 10
-    default_server_timeout: 40
-    wait_for_service_timeout: 3000
+    default_server_timeout: 2000
+    wait_for_service_timeout: 4000
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
@@ -135,7 +135,7 @@ controller_server:
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.5
-      yaw_goal_tolerance: 0.25
+      yaw_goal_tolerance: 0.5
       stateful: True
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
@@ -227,7 +227,7 @@ global_costmap:
       footprint: "[ [2.6, 1.05], [2.6, -1.05], [-2.6, -1.05], [-2.6, 1.05] ]"
       resolution: 0.1
       track_unknown_space: true
-      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer", "inflation_layer"]
       # obstacle_layer:
       #   plugin: "nav2_costmap_2d::ObstacleLayer"
       #   enabled: True
@@ -249,7 +249,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 1.0
-        inflation_radius: 6.0
+        inflation_radius: 4.0
       always_send_full_costmap: True
 
 map_server:
@@ -278,9 +278,9 @@ planner_server:
       allow_unknown: true
       downsample_costmap: false
       downsampling_factor: 1
-      max_iterations: 1000000
+      max_iterations: 3000000
       max_on_approach_iterations: 1000
-      max_planning_time: 5.0
+      max_planning_time: 10.0
       motion_model_for_search: "DUBIN"
       angle_quantization_bins: 72
       analytic_expansion_ratio: 3.5

@@ -26,6 +26,8 @@ setup(
             'odom_tf_from_map_pose = my_pkg.odom_tf_from_map_pose:main',
             'cmd_vel_relay = my_pkg.cmd_vel_relay:main',
             'cmd_vel_to_vehicle_control = my_pkg.cmd_vel_to_vehicle_control:main',
+            'cmd_vel_to_ackermann = my_pkg.cmd_vel_to_ackermann:main',
+            'time_sync_debug = my_pkg.time_sync_debug:main',
         ],
     },
 )
