@@ -13,7 +13,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
         ('share/' + package_name + '/rviz', glob('rviz/*.rviz')),
-        ('share/' + package_name + '/config', glob('config/*.yaml')),
+        ('share/' + package_name + '/config', glob('config/*.yaml') + glob('config/*.xml')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -28,6 +28,7 @@ setup(
             'cmd_vel_to_vehicle_control = my_pkg.cmd_vel_to_vehicle_control:main',
             'cmd_vel_to_ackermann = my_pkg.cmd_vel_to_ackermann:main',
             'time_sync_debug = my_pkg.time_sync_debug:main',
+            'speed_imu_odom = my_pkg.odometry:main',
         ],
     },
 )

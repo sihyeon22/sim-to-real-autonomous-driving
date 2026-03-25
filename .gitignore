@@ -5,3 +5,7 @@ log/
 *.tar.gz
 __pycache__/
 *.pyc
+sim_log/
+.log
+bags/
+*.xcf
