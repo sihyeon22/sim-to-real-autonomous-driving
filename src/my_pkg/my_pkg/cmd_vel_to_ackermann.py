@@ -20,10 +20,10 @@ class CmdVelToAckermann(Node):
         self.declare_parameter('output_topic', '/carla/hero/ackermann_cmd')
         self.declare_parameter('wheelbase', 3.0)
         self.declare_parameter('max_steering_angle', 0.6)
-        self.declare_parameter('angular_deadband', 0.03)
+        self.declare_parameter('angular_deadband', 0.06)
         self.declare_parameter('min_speed_for_steer', 0.2)
         self.declare_parameter('max_speed', 5.0)
-        self.declare_parameter('acceleration', 1.5)
+        self.declare_parameter('acceleration', 0.8)
         self.declare_parameter('jerk', 0.0)
 
         input_topic = self.get_parameter('input_topic').value
