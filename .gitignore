@@ -9,3 +9,12 @@ sim_log/
 .log
 bags/
 *.xcf
+tmp/
+frames_*.gv
+frames_*.pdf
+localization_eval/**/bag*/metadata.yaml
+others/*.log
+others/*.out
+others/*.stdout
+others/*backup-*.log
+src/my_pkg_carla_bridge/carla_msgs/.git
