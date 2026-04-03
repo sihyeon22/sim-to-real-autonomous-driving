@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import time, math, pygame, carla
 HOST, PORT = "127.0.0.1", 2000
-
 #HOST, PORT = "192.168.219.71", 2000
+
 # speed limit < 20km/h
-SPEED_LIMIT_KMH = 10.0
+SPEED_LIMIT_KMH = 6.0
 SPEED_LIMIT_MS  = SPEED_LIMIT_KMH / 3.6
 GOV_MARGIN_MS   = 1.2   
 GOV_TH_MIN      = 0.05  
