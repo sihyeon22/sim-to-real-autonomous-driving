@@ -1,10 +1,11 @@
-# File: carla_2d_nav2_wheel_odom.launch.py
+# File: carla_2d_nav2_realtime.launch.py
 # Author: sihyeon
-# Date: 2026.03.24 MON
+# Date: 2026.03.16 MON
 # Description:
-#     - speedometer + IMU dead reckoning 기반 /odom_wheel을 Nav2 odometry로 직접 연결
-#     - /odom_local 없이 실차 전환 가능한 센서만으로 Nav2 주행
-#     - odom_local baseline 대비 localization 및 주행 성능 비교용 실험 baseline
+#     - CARLA Nav2 Ackermann 주행 기본 baseline
+#     - /odom_local: CARLA ground truth odometry 기반 (실차 전환 불가)
+#     - Nav2 localization 성능의 이론적 상한선(upper bound)으로 활용
+#     - 비교 실험의 레퍼런스 기준으로 사용
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
@@ -19,6 +20,7 @@ def generate_launch_description():
     map_yaml = LaunchConfiguration('map_yaml')
     nav2_params = LaunchConfiguration('nav2_params')
     use_rviz = LaunchConfiguration('use_rviz')
+    use_relative_odom_tf = LaunchConfiguration('use_relative_odom_tf')
     use_cmd_vel_relay = LaunchConfiguration('use_cmd_vel_relay')
 
     return LaunchDescription([
@@ -32,14 +34,19 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'nav2_params',
             default_value=PathJoinSubstitution([
-                FindPackageShare('my_pkg'), 'config', 'nav2_params_wheel_odom.yaml'
+                FindPackageShare('my_pkg'), 'config', 'nav2_params.yaml'
             ]),
-            description='Full path to Nav2 params yaml (wheel odom version)',
+            description='Full path to Nav2 params yaml',
         ),
         DeclareLaunchArgument(
             'use_rviz',
             default_value='true',
             description='Launch RViz2 with Nav2 default config',
+        ),
+        DeclareLaunchArgument(
+            'use_relative_odom_tf',
+            default_value='true',
+            description='Enable odom_tf_from_map_pose (odom->hero from /carla/hero/odometry)',
         ),
         DeclareLaunchArgument(
             'use_cmd_vel_relay',
@@ -48,25 +55,21 @@ def generate_launch_description():
         ),
 
         # Realtime mode: expects CARLA bridge topics (/clock, /carla/hero/*) to be already available.
-        # speed+IMU dead reckoning odometry — odom->hero TF 직접 발행 (Nav2에 연결)
         Node(
+            condition=IfCondition(use_relative_odom_tf),
             package='my_pkg',
-            executable='speed_imu_odom',
-            name='speed_imu_odom_node',
+            executable='odom_tf_from_map_pose',
+            name='odom_tf_from_map_pose',
             output='screen',
             parameters=[{
                 'use_sim_time': True,
+                'input_topic': '/carla/hero/odometry',
+                'output_odom_topic': '/odom_local',
                 'odom_frame': 'odom',
                 'base_frame': 'hero',
-                'publish_tf': True,
-                'use_imu_angular_velocity': True,
-                'invert_speed': False,
+                'publish_rate': 30.0,
+                'use_msg_stamp': False,
             }],
-            remappings=[
-                ('/hero/speedometer', '/carla/hero/speedometer'),
-                ('/hero/imu',         '/carla/hero/imu'),
-                ('/hero/wheel_odom',  '/odom_wheel'),
-            ],
         ),
 
         Node(
@@ -74,21 +77,9 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='hero_to_lidar_static_tf',
             arguments=[
-                '--x', '0', '--y', '0', '--z', '2.4',
+                '--x', '0', '--y', '0', '--z', '1.0',
                 '--roll', '0', '--pitch', '0', '--yaw', '0',
                 '--frame-id', 'hero', '--child-frame-id', 'hero/lidar',
-            ],
-            output='screen',
-        ),
-
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='hero_to_imu_static_tf',
-            arguments=[
-                '--x', '0', '--y', '0', '--z', '0',
-                '--roll', '0', '--pitch', '0', '--yaw', '0',
-                '--frame-id', 'hero', '--child-frame-id', 'hero/imu',
             ],
             output='screen',
         ),
@@ -102,14 +93,14 @@ def generate_launch_description():
                 'use_sim_time': True,
                 'use_inf': True,
                 'target_frame': 'hero/lidar',
-                'transform_tolerance': 1.2,
-                'min_height': -1.8,
+                'transform_tolerance': 2.0,
+                'min_height': -0.95,
+                'max_height': -0.05,
                 'angle_min': -3.14159,
                 'angle_max': 3.14159,
-                'max_height': 0.0,
-                'angle_increment': 0.05,
+                'angle_increment': 0.0087,
                 'range_min': 0.3,
-                'range_max': 30.0,
+                'range_max': 8.0,
             }],
             remappings=[
                 ('cloud_in', '/carla/hero/lidar'),
@@ -159,12 +150,12 @@ def generate_launch_description():
             parameters=[{
                 'input_topic': '/cmd_vel',
                 'output_topic': '/carla/hero/ackermann_cmd',
-                'wheelbase': 3.0,
-                'max_steering_angle': 0.6,
+                'wheelbase': 0.6,
+                'max_steering_angle': 0.5,
                 'angular_deadband': 0.06,
                 'min_speed_for_steer': 0.1,
                 'max_speed': 5.0,
-                'acceleration': 0.8,
+                'acceleration': 0.0,
                 'jerk': 0.0,
             }],
         ),
