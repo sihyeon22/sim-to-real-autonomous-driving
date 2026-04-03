@@ -100,14 +100,29 @@ class SpeedImuOdomNode(Node):
         self.has_speed = True
 
     def imu_cb(self, msg: Imu):
-        q = msg.orientation
-        yaw = quat_to_yaw(q.x, q.y, q.z, q.w)
-
-        if self.initial_yaw is None:
-            self.initial_yaw = yaw
-
         self.last_imu_msg = msg
-        self.current_yaw = normalize_angle(yaw - self.initial_yaw)
+
+        if not self.use_imu_angular_velocity:
+            # 절대 yaw 모드 (CARLA ground truth orientation 사용)
+            q = msg.orientation
+            yaw = quat_to_yaw(q.x, q.y, q.z, q.w)
+            if self.initial_yaw is None:
+                self.initial_yaw = yaw
+            self.current_yaw = normalize_angle(yaw - self.initial_yaw)
+        else:
+            # 상대 yaw 모드 (angular_velocity.z 적분, 실차 전환용)
+            stamp = float(msg.header.stamp.sec) + float(msg.header.stamp.nanosec) * 1e-9
+            if self.current_yaw is None:
+                self.current_yaw = 0.0
+                self._last_imu_stamp = stamp
+            else:
+                dt = stamp - self._last_imu_stamp
+                if 0.0 < dt < 0.5:
+                    self.current_yaw = normalize_angle(
+                        self.current_yaw + msg.angular_velocity.z * dt
+                    )
+                self._last_imu_stamp = stamp
+
         self.has_imu = True
 
     def clock_cb(self, msg: Clock):
