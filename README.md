@@ -1,5 +1,6 @@
 # [Project] 소형 모빌리티 자율주행 개발·검증 환경 구축
 **퓨처드라이브 (FutureDrive) 산학협력 인턴십 프로젝트**
+
 최종 업데이트: 2026-04-06
 
 ---
@@ -115,6 +116,7 @@ CARLA 시뮬레이터에서 기본 제공되는 맵(Town10HD)과 차량 모델(d
 ---
 
 ## 파이프라인 구조
+<img width="2130" height="2250" alt="파이프라인" src="https://github.com/user-attachments/assets/8a8febeb-bf0f-4a84-989c-34397cbcb2d4" />
 
 ---
 
