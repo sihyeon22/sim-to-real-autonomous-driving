@@ -27,16 +27,16 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map_yaml',
             default_value=PathJoinSubstitution([
-                EnvironmentVariable('HOME'), 'CARLA_ws', 'maps', 'realtime_slam_map_blocked.yaml'
+                EnvironmentVariable('HOME'), 'CARLA_ws', 'maps', 'parking','mk_best.yaml'
             ]),
             description='Full path to saved map yaml',
         ),
         DeclareLaunchArgument(
             'nav2_params',
             default_value=PathJoinSubstitution([
-                FindPackageShare('my_pkg'), 'config', 'nav2_params.yaml'
+                FindPackageShare('my_pkg'), 'config', 'nav2_params_mkmini_GT.yaml'
             ]),
-            description='Full path to Nav2 params yaml',
+            description='Full path to Nav2 params yaml for mkmini',
         ),
         DeclareLaunchArgument(
             'use_rviz',
@@ -66,7 +66,7 @@ def generate_launch_description():
                 'input_topic': '/carla/hero/odometry',
                 'output_odom_topic': '/odom_local',
                 'odom_frame': 'odom',
-                'base_frame': 'hero',
+                'base_frame': 'base_link',
                 'publish_rate': 30.0,
                 'use_msg_stamp': False,
             }],
@@ -77,9 +77,21 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='hero_to_lidar_static_tf',
             arguments=[
-                '--x', '0', '--y', '0', '--z', '1.0',
+                '--x', '0.1', '--y', '0', '--z', '0.6',
                 '--roll', '0', '--pitch', '0', '--yaw', '0',
-                '--frame-id', 'hero', '--child-frame-id', 'hero/lidar',
+                '--frame-id', 'base_link', '--child-frame-id', 'hero/lidar',
+            ],
+            output='screen',
+        ),
+        
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='hero_to_imu_static_tf',
+            arguments=[
+                '--x', '0', '--y', '0', '--z', '0.5',
+                '--roll', '0', '--pitch', '0', '--yaw', '0',
+                '--frame-id', 'base_link', '--child-frame-id', 'hero/imu',
             ],
             output='screen',
         ),
@@ -94,13 +106,14 @@ def generate_launch_description():
                 'use_inf': True,
                 'target_frame': 'hero/lidar',
                 'transform_tolerance': 2.0,
-                'min_height': -0.95,
-                'max_height': -0.05,
+                'min_height': -0.50,
+                'max_height': 0.10,
                 'angle_min': -3.14159,
                 'angle_max': 3.14159,
                 'angle_increment': 0.0087,
-                'range_min': 0.3,
-                'range_max': 8.0,
+                'range_min': 0.2,
+                'range_max': 12.0,
+                'resolution': 0.03,
             }],
             remappings=[
                 ('cloud_in', '/carla/hero/lidar'),

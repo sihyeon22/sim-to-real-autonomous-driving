@@ -131,21 +131,23 @@ controller_server:
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       use_dynamic_window: false
-      use_rotate_to_heading: false
       use_collision_detection: false
       use_cost_regulated_linear_velocity_scaling: false
       allow_reversing: false
-      use_velocity_scaled_lookahead_dist: true
+      use_velocity_scaled_lookahead_dist: false
+      use_rotate_to_heading: true
       use_regulated_linear_velocity_scaling: true
 
       desired_linear_vel: 0.5
       min_approach_linear_velocity: 0.15
-      min_lookahead_dist: 1.0
-      max_lookahead_dist: 2.0
-      lookahead_time: 2.0
+      lookahead_dist: 2.0
+      # min_lookahead_dist: 1.0
+      # max_lookahead_dist: 2.0
+      # lookahead_time: 2.0
       approach_velocity_scaling_dist: 1.2
-      regulated_linear_scaling_min_radius: 1.1
+      regulated_linear_scaling_min_radius: 1.71
       regulated_linear_scaling_min_speed: 0.35
+      rotate_to_heading_angular_vel: 0.2
 
 local_costmap:
   local_costmap:
@@ -156,10 +158,10 @@ local_costmap:
       robot_base_frame: base_link
       use_sim_time: True
       rolling_window: true
-      width: 2
-      height: 2
+      width: 4
+      height: 4
       resolution: 0.05
-      footprint: "[ [0.42, 0.305], [0.42, -0.305], [-0.42, -0.305], [-0.42, 0.305] ]"
+      footprint: "[ [0.79, 0.37], [0.79, -0.37], [-0.79, -0.37], [-0.79, 0.37] ]"
       plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -194,7 +196,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: True
-      footprint: "[ [0.42, 0.305], [0.42, -0.305], [-0.42, -0.305], [-0.42, 0.305] ]"
+      footprint: "[ [0.79, 0.37], [0.79, -0.37], [-0.79, -0.37], [-0.79, 0.37] ]"
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "inflation_layer"]
@@ -238,7 +240,7 @@ planner_server:
       angle_quantization_bins: 144
       analytic_expansion_ratio: 3.5
       analytic_expansion_max_length: 5.0
-      minimum_turning_radius: 1.1
+      minimum_turning_radius: 1.71
       change_penalty: 0.0
       non_straight_penalty: 1.5
       cost_penalty: 5.0

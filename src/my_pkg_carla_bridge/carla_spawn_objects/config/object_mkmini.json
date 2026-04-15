@@ -1,0 +1,105 @@
+{
+    "objects":
+    [
+        {
+            "type": "sensor.pseudo.opendrive_map",
+            "id": "map"
+        },
+        {
+            "type": "vehicle.mkmini.mkmini3",
+            "id": "hero",
+            "spawn_point": {
+                "x": 8.5,
+                "y": 1.0,
+                "z": 0.3,
+                "roll": 0.0,
+                "pitch": 0.0,
+                "yaw": -90.0
+            },
+            "sensors":
+            [
+                {
+                    "type": "sensor.lidar.ray_cast",
+                    "id": "lidar",
+                    "spawn_point": {
+                        "x": 0.1,
+                        "y": 0.0,
+                        "z": 0.6,
+                        "roll": 0.0,
+                        "pitch": 0.0,
+                        "yaw": 0.0
+                    },
+                    "range": 50,
+                    "channels": 32,
+                    "points_per_second": 655360,
+                    "upper_fov": 21.2,
+                    "lower_fov": -21.2,
+                    "rotation_frequency": 20,
+                    "noise_stddev": 0.005
+                },
+                {
+                    "type": "sensor.pseudo.odom",
+                    "id": "odometry"
+                },
+                {
+                    "type": "actor.pseudo.control",
+                    "id": "control"
+                },
+                {
+                    "type": "sensor.other.imu",
+                    "id": "imu",
+                    "spawn_point": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.5,
+                        "roll": 0.0,
+                        "pitch": 0.0,
+                        "yaw": 0.0
+                    },
+                    "noise_gyro_stddev_x": 0.01,
+                    "noise_gyro_stddev_y": 0.01,
+                    "noise_gyro_stddev_z": 0.01,
+                    "noise_gyro_bias_x": 0.001,
+                    "noise_gyro_bias_y": 0.001,
+                    "noise_gyro_bias_z": 0.001
+                },
+                {
+                    "type": "sensor.other.collision",
+                    "id": "collision",
+                    "spawn_point": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                },
+                {
+                    "type": "sensor.pseudo.speedometer",
+                    "id": "speedometer"
+                },
+
+
+                {
+                "type": "sensor.camera.rgb",
+                "id": "rgb_view",
+                "spawn_point": {
+                    "x": -3.5,
+                    "y": 0.0,
+                    "z": 3.0,
+                    "roll": 0.0,
+                    "pitch": 20.0,
+                    "yaw": 0.0
+                },
+                "image_size_x": 800,
+                "image_size_y": 600,
+                "fov": 90.0,
+                "attached_objects": [
+                    {
+                    "type": "actor.pseudo.control",
+                    "id": "control"
+                    }
+                ]
+                }
+            ]
+        }
+    ]
+}
