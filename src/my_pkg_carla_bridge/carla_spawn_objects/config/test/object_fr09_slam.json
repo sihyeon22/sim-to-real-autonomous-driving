@@ -6,7 +6,7 @@
             "id": "map"
         },
         {
-            "type": "vehicle.mkmini.mkmini3",
+            "type": "vehicle.fr.fr09",
             "id": "hero",
             "spawn_point": {
                 "x": 8.5,
@@ -22,20 +22,21 @@
                     "type": "sensor.lidar.ray_cast",
                     "id": "lidar",
                     "spawn_point": {
-                        "x": 0.0,
+                        "x": 0.456,
                         "y": 0.0,
-                        "z": 1.0,
+                        "z": 1.135,
                         "roll": 0.0,
                         "pitch": 0.0,
                         "yaw": 0.0
                     },
                     "range": 50,
                     "channels": 32,
-                    "points_per_second": 320000,
+                    "points_per_second": 655360,
                     "upper_fov": 0.0,
-                    "lower_fov": -20.0,
+                    "lower_fov": -15.0,
                     "rotation_frequency": 20,
-                    "noise_stddev": 0.0
+                    "noise_stddev": 0.0,
+                    "sensor_tick": 0.05
                 },
                 {
                     "type": "sensor.pseudo.odom",
@@ -51,7 +52,7 @@
                     "spawn_point": {
                         "x": 0.0,
                         "y": 0.0,
-                        "z": 0.0,
+                        "z": 0.5,
                         "roll": 0.0,
                         "pitch": 0.0,
                         "yaw": 0.0

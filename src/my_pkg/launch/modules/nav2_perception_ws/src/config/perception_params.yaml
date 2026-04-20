@@ -1,0 +1,49 @@
+# File: perception_params.yaml
+# Description: Perception module parameters for MK-Mini
+
+# ── Odometry ─────────────────────────────────────────────────
+speed_imu_odom_node:
+  ros__parameters:
+    odom_frame: odom
+    base_frame: base_link
+    publish_tf: true
+    use_imu_angular_velocity: true
+    invert_speed: false
+
+# ── Static TF (sensor mounting positions) ────────────────────
+# base_link → hero/lidar
+lidar_tf:
+  x: 0.1
+  y: 0.0
+  z: 0.6
+  roll: 0.0
+  pitch: 0.0
+  yaw: 0.0
+  frame_id: base_link
+  child_frame_id: hero/lidar
+
+# base_link → hero/imu
+imu_tf:
+  x: 0.0
+  y: 0.0
+  z: 0.5
+  roll: 0.0
+  pitch: 0.0
+  yaw: 0.0
+  frame_id: base_link
+  child_frame_id: hero/imu
+
+# ── PointCloud → LaserScan ────────────────────────────────────
+pointcloud_to_laserscan:
+  ros__parameters:
+    use_inf: true
+    target_frame: hero/lidar
+    transform_tolerance: 2.0
+    min_height: -0.50   # z-slice 하단 (lidar 프레임 기준, 단위: m)
+    max_height: -0.05   # z-slice 상단 (지면 반사 제거)
+    angle_min: -3.14159
+    angle_max:  3.14159
+    angle_increment: 0.0087  # ~0.5도 해상도
+    range_min: 0.2
+    range_max: 8.0
+    resolution: 0.03

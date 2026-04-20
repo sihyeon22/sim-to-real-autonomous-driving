@@ -1,0 +1,38 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    use_sim_time: true
+    two_d_mode: true
+    # EKF가 odom -> base_link TF를 직접 발행
+    # speed_imu_odom의 publish_tf는 반드시 False로 설정해야 함 (TF 충돌 방지)
+    publish_tf: true
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # 입력 1: 휠 오도메트리 (/odom_wheel)
+    # x, y: dead reckoning 오차가 있지만 EKF 초기 위치 기준으로 필요 (AMCL이 map->odom으로 보정)
+    #        없으면 EKF가 (0,0,0)에서 시작해 콜드 스타트 oscillation 발생
+    # yaw: EKF 방향 기준으로 필요 -> true
+    # vx: speedometer 직접 측정값 -> true
+    # vy: Ackermann 차량은 물리적으로 항상 0 -> true (zero constraint, vy 발산 방지)
+    # vyaw: IMU angular_velocity.z 현재값 -> true
+    odom0: /odom_wheel
+    odom0_config: [true,  true,  false,   # x, y, z (초기 위치 기준, AMCL이 오차 보정)
+                   false, false, true,    # roll, pitch, yaw
+                   true,  true,  false,   # vx, vy, vz
+                   false, false, true,    # vroll, vpitch, vyaw
+                   false, false, false]   # ax, ay, az
+
+    # 입력 2: IMU (/carla/hero/imu)
+    # ay 제외 이유: 회전 시 원심가속도(v²/r)가 포함되어 EKF가 vy로 잘못 적분함
+    # ax만 사용: 급가감속 시 speedometer 지연을 IMU가 먼저 감지 -> vx 추정 보완
+    imu0: /carla/hero/imu
+    imu0_config: [false, false, false,   # x, y, z
+                  false, false, false,   # roll, pitch, yaw
+                  false, false, false,   # vx, vy, vz
+                  false, false, false,   # vroll, vpitch, vyaw
+                  true,  false, false]   # ax만 사용, ay 제외
+    imu0_remove_gravitational_acceleration: true

@@ -48,7 +48,7 @@ Visualization Manager:
       Queue Size: 100
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.03
+      Size (m): 0.1
       Style: Flat Squares
       Topic:
         Depth: 5

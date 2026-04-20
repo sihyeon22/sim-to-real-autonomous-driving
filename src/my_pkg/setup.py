@@ -23,13 +23,10 @@ setup(
     license='TODO: License declaration',
     entry_points={
         'console_scripts': [
-            'odom_tf_from_map_pose = my_pkg.odom_tf_from_map_pose:main',
-            'cmd_vel_to_vehicle_control = my_pkg.cmd_vel_to_vehicle_control:main',
             'cmd_vel_to_ackermann = my_pkg.cmd_vel_to_ackermann:main',
             'speed_imu_odom = my_pkg.odometry:main',
-            'cmd_vel_relay = my_pkg.cmd_vel_relay:main',
-            'time_sync_debug = my_pkg.time_sync_debug:main',
             'waypoint_sender = my_pkg.waypoint_sender:main',
+            'sensor_bridge = my_pkg.sensor_bridge:main',
         ],
     },
 )

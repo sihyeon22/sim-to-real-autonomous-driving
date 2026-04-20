@@ -1,0 +1,21 @@
+{
+    "objects":
+    [
+        {
+            "type": "sensor.pseudo.opendrive_map",
+            "id": "map"
+        },
+        {
+            "type": "vehicle.tesla.model3",
+            "id": "obstacle1",
+            "spawn_point": {
+                "x": -8.5,
+                "y": -20.5,
+                "z": 0.3,
+                "roll": 0.0,
+                "pitch": 0.0,
+                "yaw": 0.0
+            }
+        }
+    ]
+}

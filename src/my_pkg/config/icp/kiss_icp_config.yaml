@@ -1,0 +1,27 @@
+kiss_icp_node:
+  ros__parameters:
+
+    data:
+      # CARLA LiDAR는 per-point timestamp를 지원하지 않아 deskewing 불가
+      deskew: False
+      # FR09 LiDAR 설정(range=50)과 pointcloud_to_laserscan(12m)에 맞춤
+      max_range: 12.0
+      # 차량 하부 구조물(타이어, 차체) 반사 포인트 제거
+      min_range: 0.19
+
+    mapping:
+      # voxel당 최대 포인트 수: 클수록 정밀하지만 연산량 증가
+      max_points_per_voxel: 20
+
+    adaptive_threshold:
+      # ICP 수렴 판단 초기 임계값 (단위: m)
+      # 회전 중 프레임 간 변위가 커도 수렴하도록 기본값(2.0)보다 크게 설정
+      initial_threshold: 4.0
+      # 최소 이동 거리: 낮출수록 느린 회전 중에도 업데이트 수행
+      min_motion_th: 0.05
+
+    registration:
+      max_num_iterations: 500
+      convergence_criterion: 0.0001
+      # 0 = CPU 코어 수 자동 설정
+      max_num_threads: 0

@@ -1,0 +1,43 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    use_sim_time: true
+    two_d_mode: true
+    # odom->base_link TF는 EKF만 발행 (Kiss-ICP, speed_imu_odom의 publish_tf는 False로 설정)
+    publish_tf: true
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # 입력 1: Kiss-ICP LiDAR odometry (/kiss/odometry)
+    # yaw만 사용: 위치/속도는 발산 위험, yaw는 상대적으로 안정적
+    odom0: /kiss/odometry
+    odom0_config: [false, false, false,   # x, y, z
+                   false, false, false,    # roll, pitch, yaw
+                   true,  false, false,   # vx, vy, vz
+                   false, false, true,   # vroll, vpitch, vyaw
+                   false, false, false]   # ax, ay, az
+
+    # 입력 2: 휠 오도메트리 (/odom_wheel) - speed_imu_odom 노드 출력
+    # vx: speedometer 직접 측정값
+    # vy: Ackermann 차량 물리적 제약 (항상 0) → zero constraint
+    # vyaw: IMU angular_velocity.z 기반
+    odom1: /odom_wheel
+    odom1_config: [false, false, false,   # x, y, z
+                   false, false, false,   # roll, pitch, yaw
+                   true,  true,  false,   # vx, vy (zero constraint)
+                   false, false, true,    # vroll, vpitch, vyaw
+                   false, false, false]   # ax, ay, az
+
+    # 입력 3: IMU (/carla/hero/imu)
+    # ax만 사용: 급가감속 시 speedometer 지연을 IMU가 먼저 감지
+    # ay 제외: 회전 시 원심가속도(v^2/r) 포함으로 EKF vy 발산 위험
+    imu0: /carla/hero/imu
+    imu0_config: [false, false, false,   # x, y, z
+                  false, false, false,   # roll, pitch, yaw
+                  false, false, false,   # vx, vy, vz
+                  false, false, false,   # vroll, vpitch, vyaw
+                  false, false, false]   # ax만 사용
+    imu0_remove_gravitational_acceleration: true

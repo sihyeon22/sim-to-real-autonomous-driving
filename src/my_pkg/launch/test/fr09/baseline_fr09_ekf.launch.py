@@ -1,9 +1,10 @@
-# File: baseline_mkmini.launch.py
+# File: baseline_fr09_ekf.launch.py
 # Author: sihyeon
-# Date: 2026.04.15. WED
+# Date: 2026.04.15 WED
 # Description:
-#     - speedometer + IMU dead reckoning 기반 /odom_wheel을 Nav2 odometry로 직접 연결
-#     - /odom_local 없이 실차 전환 가능한 센서만으로 Nav2 주행(MK-Mini3)
+#     - speedometer + IMU dead reckoning 기반 /odom_wheel 생성
+#     - robot_localization EKF로 /odom_wheel(vx, vyaw) + IMU(ax, ay) 융합
+#     - EKF 출력 /odometry/filtered를 Nav2 odometry로 연결
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
@@ -26,9 +27,9 @@ ARGUMENTS = [
     DeclareLaunchArgument(
         'nav2_params',
         default_value=PathJoinSubstitution([
-            FindPackageShare('my_pkg'), 'config', 'nav2_params_mkmini.yaml'
+            FindPackageShare('my_pkg'), 'config', 'nav2_params_fr09_ekf.yaml'
         ]),
-        description='Full path to Nav2 params yaml for mkmini baseline',
+        description='Full path to Nav2 params yaml for fr09 baseline',
     ),
     DeclareLaunchArgument(
         'use_rviz',
@@ -42,27 +43,28 @@ ARGUMENTS = [
     ),
 ]
 
+
 def generate_launch_description():
     # LaunchConfiguration 변수
     map_yaml          = LaunchConfiguration('map_yaml')
     nav2_params       = LaunchConfiguration('nav2_params')
     use_rviz          = LaunchConfiguration('use_rviz')
     use_cmd_vel_relay = LaunchConfiguration('use_cmd_vel_relay')
-    
-    
+
+
     # TF: base_link -> 센서 프레임
     lidar_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         name='hero_to_lidar_static_tf',
         arguments=[
-            '--x', '0.1', '--y', '0', '--z', '0.6',
+            '--x', '0.456', '--y', '0', '--z', '1.135',
             '--roll', '0', '--pitch', '0', '--yaw', '0',
             '--frame-id', 'base_link', '--child-frame-id', 'hero/lidar',
         ],
         output='screen',
     )
-    
+
     imu_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -74,9 +76,10 @@ def generate_launch_description():
         ],
         output='screen',
     )
-    
-    
+
+
     # Odometry: speedometer + IMU dead reckoning
+    # publish_tf를 False로 설정 -> odom->base_link TF는 EKF 노드가 발행
     speed_imu_odom = Node(
         package='my_pkg',
         executable='speed_imu_odom',
@@ -86,7 +89,7 @@ def generate_launch_description():
             'use_sim_time': True,
             'odom_frame': 'odom',
             'base_frame': 'base_link',
-            'publish_tf': True,
+            'publish_tf': False,
             'use_imu_angular_velocity': True,
             'invert_speed': False,
         }],
@@ -96,8 +99,22 @@ def generate_launch_description():
             ('/hero/wheel_odom',  '/odom_wheel'),
         ],
     )
-    
-    
+
+
+    # EKF: /odom_wheel(vx, vyaw) + IMU(ax, ay) 융합
+    # 출력: /odometry/filtered, odom->base_link TF 발행
+    ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[
+            PathJoinSubstitution([FindPackageShare('my_pkg'), 'config', 'ekf.yaml']),
+            {'use_sim_time': True},
+        ],
+    )
+
+
     # 센서: PointCloud -> LaserScan 변환
     pointcloud_to_laserscan = Node(
         package='pointcloud_to_laserscan',
@@ -109,21 +126,21 @@ def generate_launch_description():
             'use_inf': True,
             'target_frame': 'hero/lidar',
             'transform_tolerance': 2.0,
-            'min_height': -0.50,
-            'max_height': 0.10,
+            'min_height': -0.95,
+            'max_height': 0.00,
             'angle_min': -3.14159,
-            'angle_max': 3.14159,
-            'angle_increment': 0.00614,
+            'angle_max':  3.14159,
+            'angle_increment': 0.0087,
             'range_min': 0.19,
             'range_max': 12.0,
         }],
         remappings=[
             ('cloud_in', '/carla/hero/lidar'),
-            ('scan', '/scan'),
+            ('scan',     '/scan'),
         ],
     )
-    
-    
+
+
     # Nav2 bringup (AMCL + planner + controller)
     nav2_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -138,8 +155,8 @@ def generate_launch_description():
             'use_composition': 'False',
         }.items(),
     )
-    
-    
+
+
     # 차량 제어: cmd_vel -> Ackermann -> CARLA
     carla_ackermann_control = Node(
         condition=IfCondition(use_cmd_vel_relay),
@@ -167,8 +184,8 @@ def generate_launch_description():
         parameters=[{
             'input_topic':         '/cmd_vel',
             'output_topic':        '/carla/hero/ackermann_cmd',
-            'wheelbase':           0.6,
-            'max_steering_angle':  0.5,
+            'wheelbase':           0.856,
+            'max_steering_angle':  0.463,
             'angular_deadband':    0.06,
             'min_speed_for_steer': 0.15,
             'max_speed':           0.6,
@@ -189,10 +206,12 @@ def generate_launch_description():
         output='screen',
     )
 
+
     return LaunchDescription(ARGUMENTS + [
         lidar_tf,                   # TF
         imu_tf,
         speed_imu_odom,             # odometry
+        ekf_node,                   # EKF 융합
         pointcloud_to_laserscan,    # 센서
         nav2_bringup,               # Nav2
         carla_ackermann_control,    # 제어
